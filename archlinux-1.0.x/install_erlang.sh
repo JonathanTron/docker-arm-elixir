@@ -4,4 +4,4 @@ source /build/buildconfig
 set -x
 
 ## Install erlang headless
-pacman -S --noconfirm erlang-nox
+pacman -S --noconfirm --noprogressbar erlang-nox

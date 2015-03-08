@@ -8,3 +8,6 @@ RUN /build/prepare.sh && \
     /build/install_erlang.sh && \
     /build/install_elixir.sh && \
     /build/cleanup.sh
+
+# Elixir don't behave correctly when locale is not UTF-8
+ENV LANG en_US.UTF-8
