@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-source /build/buildconfig
+source /build/buildconfig.sh
 set -x
 
 ## Install elixir build dependencies

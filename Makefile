@@ -1,22 +1,36 @@
 DISTRIB = archlinux
 ELIXIR_BRANCH = 1.0.x
-DIRECTORY = $(DISTRIB)-$(ELIXIR_BRANCH)
-NAME = jonathantron/armhf-$(DISTRIB)-elixir
+HOST_ARCH = $(shell uname -m)
+DIRECTORY = $(HOST_ARCH)-$(DISTRIB)-$(ELIXIR_BRANCH)
+NAME = jonathantron/$(HOST_ARCH)-$(DISTRIB)-elixir
 VERSION = 1.0.3
 
-HOST_NOT_ARM = $(if [[ uname -a | grep -q x86_64 ]]; then "1"; if)
+override HOST_NOT_ARM = $(shell uname -m | grep -q x86_64 && echo 1)
 
-.PHONY: all build test tag_latest release
+.PHONY: all build test tag_latest release clean
 
 all: build
 
-ifeq (HOST_NOT_ARM,"1")
-build:
-	@if ! test -f /proc/sys/fs/binfmt_misc/arm; then sudo sh -c 'echo ":arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static:" > /proc/sys/fs/binfmt_misc/register'; fi
+clean:
+	rm -f arm*/*.sh arm*/qemu-*
+
+copy_commons:
+	@cp $(DISTRIB)-commons/* $(DIRECTORY)/
+
+build_qemu_wrapper:
+	@if test "$(HOST_ARCH)" != "armv7l" -a "$(HOST_ARCH)" != "armv6l"; then echo "You need to set HOST_ARCH to the targeted arm version (supported: armv7l, armv6l given: '$(HOST_ARCH)')" && false; fi
+	gcc -static tools/qemu-$(HOST_ARCH)-static-wrap.c -O3 -s -o tools/qemu-$(HOST_ARCH)-static-wrap
+	@chmod +x tools/qemu-$(HOST_ARCH)-static-wrap
+
+ifeq ($(HOST_NOT_ARM),1)
+build: build_qemu_wrapper copy_commons
+	@if test "$(HOST_ARCH)" != "armv7l" -a "$(HOST_ARCH)" != "armv6l"; then echo "You need to set HOST_ARCH to the targeted arm version (supported: armv7l, armv6l given: '$(HOST_ARCH)')" && false; fi
+	@if ! test -f /proc/sys/fs/binfmt_misc/arm; then sudo sh -c 'echo ":arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/usr/bin/qemu-arm-static-wrap:" > /proc/sys/fs/binfmt_misc/register'; fi
 	@cp /usr/bin/qemu-arm-static $(DIRECTORY)/
+	@cp tools/qemu-$(HOST_ARCH)-static-wrap $(DIRECTORY)/qemu-arm-static-wrap
 	time docker build  -f $(DIRECTORY)/Dockerfile.x86_64 -t $(NAME):$(VERSION) --rm $(DIRECTORY)
 else
-build:
+build: copy_commons
 	time docker build -t $(NAME):$(VERSION) --rm $(DIRECTORY)
 endif
 

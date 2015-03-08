@@ -2,6 +2,7 @@ FROM armv7/armhf-archlinux:2015-02
 MAINTAINER Jonathan Tron <jonathan@tron.name>
 
 ADD qemu-arm-static /usr/bin/
+ADD qemu-arm-static-wrap /usr/bin/
 
 ENV HOME /root
 ADD . /build

@@ -1,3 +1,7 @@
 .DS_Store
 .vagrant
 qemu-arm-static
+qemu-arm-static-wrap
+tools/qemu-armv6l-static-wrap
+tools/qemu-armv7l-static-wrap
+arm*/*.sh
