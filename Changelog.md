@@ -1,4 +1,4 @@
-## 1.0.3
+## 1.0.3 (release date: 2015-09-03)
 
 ### armv6l-archlinux-1.0.x
 

@@ -35,9 +35,13 @@ build: copy_commons
 endif
 
 test:
+ifneq ($(HOST_NOT_ARM),1)
 	# Need to be on the same host as docker daemon, because we mount shared test
 	# directory...
 	env NAME=$(NAME) VERSION=$(VERSION) ./test/runner.sh
+else
+	@echo "Tests skipped... need to be adapted to run on non ARM host"
+endif
 
 tag_latest:
 	cd $(DIRECTORY)

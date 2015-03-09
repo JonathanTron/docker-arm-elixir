@@ -13,4 +13,4 @@ tar xzf v1.0.3.tar.gz
 
 ## Compile, run tests and install elixir
 cd elixir-1.0.3
-make clean test && make install
+make clean install

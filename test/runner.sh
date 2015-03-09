@@ -18,7 +18,11 @@ function cleanup()
 PWD=$(pwd)
 
 echo " --> Starting container"
-ID=$(docker run -d -v "$PWD/test:/test" "$NAME:$VERSION" /bin/bash -c 'while true; do echo "running"; sleep 5; done;')
+if [[ "$HOST_NOT_ARM" = "1" ]]; then
+	ID=$(docker run -d -v "$PWD/test:/test" "$NAME:$VERSION" /bin/bash -c 'while true; do echo "running"; sleep 5; done;')
+else
+	ID=$(docker run -d -v "$PWD/test:/test" "$NAME:$VERSION" /bin/bash -c 'while true; do echo "running"; sleep 5; done;')
+fi
 sleep 1
 
 trap cleanup EXIT
